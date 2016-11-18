@@ -49,8 +49,11 @@ public class Board : MonoBehaviour {
     {
         if (Input.GetKey(KeyCode.Mouse0))
         {
+            Debug.Log(tile.x + " " + tile.y);
+
             if (tile.CurrentState == Tile.State.FREE)
             {
+
                 tile.CurrentState = turn;
 
                 if (checkValidMove(tile, turn))
@@ -99,13 +102,13 @@ public class Board : MonoBehaviour {
             {
                // Debug.Log(squares[tile.y, tile.x].y + " " +  squares[tile.y, tile.x].x);
 
-                if (squares[tile.y, tile.x].CurrentState == Tile.State.WHITE)
+                if (squares[tile.x, tile.y].CurrentState == Tile.State.WHITE)
                 {
-                    squares[tile.y, tile.x].CurrentState = Tile.State.BLACK;
+                    squares[tile.x, tile.y].CurrentState = Tile.State.BLACK;
                 }
-                else if (squares[tile.y, tile.x].CurrentState == Tile.State.BLACK)
+                else if (squares[tile.x, tile.y].CurrentState == Tile.State.BLACK)
                 {
-                    squares[tile.y, tile.x].CurrentState = Tile.State.WHITE;
+                    squares[tile.x, tile.y].CurrentState = Tile.State.WHITE;
                 }
             }
 
@@ -146,19 +149,19 @@ public class Board : MonoBehaviour {
 
         while (col < 8)
         {
-            if (squares[col, row].CurrentState == turnState)
+            if (squares[row, col].CurrentState == turnState)
             {
                 playerColorTile++;
                 //Make sure that the player's tiles are not next to each other: 
-                if (playerColorTile > 1 && squares[col, row].CurrentState == squares[col - 1, row].CurrentState)
+                if (playerColorTile > 1 && squares[row, col].CurrentState == squares[row, col - 1].CurrentState)
                 {
                     nextToEachOther = true;
                 }
             }
-            if (playerColorTile > 0 && squares[col, row].CurrentState != turnState && squares[col, row].CurrentState != Tile.State.FREE)
+            if (playerColorTile > 0 && squares[row, col].CurrentState != turnState && squares[row, col].CurrentState != Tile.State.FREE)
             {
                 //check if the tile before the oppenent one is not a free tile: 
-                if (squares[col - 1, row].CurrentState != Tile.State.FREE)
+                if (squares[row, col - 1].CurrentState != Tile.State.FREE)
                 {
                     tileToFlip.Add(squares[row, col]);
                     opponentColorTile++;
@@ -193,21 +196,21 @@ public class Board : MonoBehaviour {
         // count consecutive black tiles
         while (row < 8)
         {
-            if (squares[col, row].CurrentState == turnState)
+            if (squares[row, col].CurrentState == turnState)
             {
                 playerColorTile++;
 
-                if (playerColorTile > 1 && squares[col, row].CurrentState == squares[col, row - 1].CurrentState)
+                if (playerColorTile > 1 && squares[row, col].CurrentState == squares[row - 1, col].CurrentState)
                 {
-                    nextToEachOther = false;
+                 //   nextToEachOther = true;
                 }
             }
-            if (playerColorTile > 0 && squares[col, row].CurrentState != turnState && squares[col, row].CurrentState != Tile.State.FREE)
+            if (playerColorTile > 0 && squares[row, col].CurrentState != turnState && squares[row, col].CurrentState != Tile.State.FREE)
             {
                 //check if the tile before the oppenent one is not a free tile: 
-                if (squares[col, row - 1].CurrentState != Tile.State.FREE)
+                if (squares[row - 1, col].CurrentState != Tile.State.FREE)
                 {
-                    tileToFlip.Add(squares[col, row]);
+                    tileToFlip.Add(squares[row, col]);
                     opponentColorTile++;
                 }
             }
@@ -228,6 +231,56 @@ public class Board : MonoBehaviour {
 
         return valid;
     }
+
+    /*
+    private bool checkDiagonals(Tile.State turnState)
+    {
+        bool valid = false;
+        int playerColorTile = 0;
+        int opponentColorTile = 0;
+        bool nextToEachOther = false;
+
+        int other = 0; 
+        for (int row = 0; row < 8; row++)
+        {
+            for(int i = 0; i < 8; i++)
+            {
+
+            if (squares[row + i, other + i].CurrentState == turnState)
+            {
+                playerColorTile++;
+
+                if (playerColorTile > 1 && squares[row + i, other + i].CurrentState == squares[row, other].CurrentState)
+                {
+                    //   nextToEachOther = true;
+                }
+            }
+            if (playerColorTile > 0 && squares[row + i, other + i].CurrentState != turnState && squares[row + i, other + i].CurrentState != Tile.State.FREE)
+            {
+                //check if the tile before the oppenent one is not a free tile: 
+                if (squares[row, other].CurrentState != Tile.State.FREE)
+                {
+                    tileToFlip.Add(squares[row, other]);
+                    opponentColorTile++;
+                }
+            }
+            row++;
+        }
+    }
+        // check constraint
+        if (playerColorTile >= 2 && opponentColorTile > 0 && nextToEachOther == false)
+        {
+            valid = true;
+        }
+
+        if (valid == false)
+        {
+            //purge the list of tiles to be flipped: 
+            tileToFlip.Clear();
+        }
+
+        return valid;
+    }*/
 
     void switchTurn()
     {
