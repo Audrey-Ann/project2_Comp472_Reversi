@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-// Test
+
 public class Board : MonoBehaviour {
 
 	[SerializeField]
