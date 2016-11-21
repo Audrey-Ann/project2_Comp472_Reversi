@@ -40,7 +40,7 @@ public class Board : MonoBehaviour {
 			}
 		}
 
-        collectNeighbours(squares); 
+        collectNeighbours(squares);
         Reset();
 
     }
@@ -59,7 +59,7 @@ public class Board : MonoBehaviour {
                 if (checkValidMove(tile, turn))
                 {
                     listBoardStates.Add(board);
-                    switchTurn(); 
+                    switchTurn();
                 }
                 else
                 {
@@ -77,21 +77,21 @@ public class Board : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Reset(); 
+            Reset();
         }
 	}
 
     bool checkValidMove(Tile tile, Tile.State clickedColour)
     {
-        List<Tile> tileNeighbours = new List<Tile>(); 
-            tileNeighbours = tilesPlusNeighbours[tile]; 
-        //Check for neighbours: 
+        List<Tile> tileNeighbours = new List<Tile>();
+            tileNeighbours = tilesPlusNeighbours[tile];
+        //Check for neighbours:
         foreach(Tile neighbour in tileNeighbours)
-        {   //Check if we can flip and check neighbours of the clicked tile:  
+        {   //Check if we can flip and check neighbours of the clicked tile:
             if (check(turn) && neighbour.CurrentState != Tile.State.FREE && neighbour.CurrentState != clickedColour){return true;}
         }
 
-        return false; 
+        return false;
     }
 
     void FlipBoard()
@@ -116,7 +116,7 @@ public class Board : MonoBehaviour {
         }
         else
         {
-            Debug.Log("Nothing to be flipped"); 
+            Debug.Log("Nothing to be flipped");
         }
     }
 
@@ -139,52 +139,85 @@ public class Board : MonoBehaviour {
         return false;
     }
 
-    private bool checkRow(int row, Tile.State turnState)
-    {
-        bool valid = false;
-        int col = 0;
-        int playerColorTile = 0;
-        int opponentColorTile = 0;
-        bool nextToEachOther = false;
+    // private bool checkRow(int row, Tile.State turnState)
+    // {
+    //     bool valid = false;
+    //     int col = 0;
+    //     int playerColorTile = 0;
+    //     int opponentColorTile = 0;
+    //     bool nextToEachOther = false;
+	//
+    //     while (col < 8)
+    //     {
+    //         if (squares[row, col].CurrentState == turnState)
+    //         {
+    //             playerColorTile++;
+    //             //Make sure that the player's tiles are not next to each other:
+    //             if (playerColorTile > 1 && squares[row, col].CurrentState == squares[row, col - 1].CurrentState)
+    //             {
+    //                 nextToEachOther = true;
+    //             }
+    //         }
+    //         if (playerColorTile > 0 && squares[row, col].CurrentState != turnState && squares[row, col].CurrentState != Tile.State.FREE)
+    //         {
+    //             //check if the tile before the oppenent one is not a free tile:
+    //             if (squares[row, col - 1].CurrentState != Tile.State.FREE)
+    //             {
+    //                 tileToFlip.Add(squares[row, col]);
+    //                 opponentColorTile++;
+    //             }
+    //         }
+    //         col++;
+    //     }
+	//
+    //     //check constraints
+    //     if (playerColorTile >= 2 && opponentColorTile > 0 && nextToEachOther == false)
+    //     {
+    //         valid = true;
+    //     }
+	//
+    //     if(valid == false)
+    //     {
+    //         //purge the list of tiles to be flipped:
+    //         tileToFlip.Clear();
+    //     }
+	//
+    //     return valid;
+    // }
+	
+	private bool checkRow(int col, Tile.State turnState) {
+		foundOther = false;
 
-        while (col < 8)
-        {
-            if (squares[row, col].CurrentState == turnState)
-            {
-                playerColorTile++;
-                //Make sure that the player's tiles are not next to each other: 
-                if (playerColorTile > 1 && squares[row, col].CurrentState == squares[row, col - 1].CurrentState)
-                {
-                    nextToEachOther = true;
-                }
-            }
-            if (playerColorTile > 0 && squares[row, col].CurrentState != turnState && squares[row, col].CurrentState != Tile.State.FREE)
-            {
-                //check if the tile before the oppenent one is not a free tile: 
-                if (squares[row, col - 1].CurrentState != Tile.State.FREE)
-                {
-                    tileToFlip.Add(squares[row, col]);
-                    opponentColorTile++;
-                }
-            }
-            col++;
-        }
+		for (int i = 0; i < col; i++) {
+		    if (squares[row, i].CurrentState == tile.CurrentState) {
+		        for (int j = i; j < col; j++) {
+		            if (squares[row, j].CurrentState != turn) {
+		                if (squares[row, j].CurrentState != Tile.State.FREE) {
+		                tileToFlip.Add(squares[row, col]);
+		                }
+		                else {
+		                    tileToFlip.Clear();
+		                    return false;
+		                }
+		            }
+		            else {
+		                if (j != i) {
+		                    foundOther = true;
+		                    break;
+		                }
+		            }
+		            break;
+		        }
+		    }
+		}
+		if (foundOther == true) {
+		    return true;
+		}
+		else {
+		    return false;
+		}
+	}
 
-        //check constraints
-        if (playerColorTile >= 2 && opponentColorTile > 0 && nextToEachOther == false)
-        {
-            valid = true;
-        }
-
-        if(valid == false)
-        {
-            //purge the list of tiles to be flipped: 
-            tileToFlip.Clear();
-        }
-
-        return valid;
-    }
-   
     private bool checkColumn(int col, Tile.State turnState)
     {
         bool valid = false;
@@ -207,7 +240,7 @@ public class Board : MonoBehaviour {
             }
             if (playerColorTile > 0 && squares[row, col].CurrentState != turnState && squares[row, col].CurrentState != Tile.State.FREE)
             {
-                //check if the tile before the oppenent one is not a free tile: 
+                //check if the tile before the oppenent one is not a free tile:
                 if (squares[row - 1, col].CurrentState != Tile.State.FREE)
                 {
                     tileToFlip.Add(squares[row, col]);
@@ -225,7 +258,7 @@ public class Board : MonoBehaviour {
 
         if (valid == false)
         {
-            //purge the list of tiles to be flipped: 
+            //purge the list of tiles to be flipped:
             tileToFlip.Clear();
         }
 
@@ -240,7 +273,7 @@ public class Board : MonoBehaviour {
         int opponentColorTile = 0;
         bool nextToEachOther = false;
 
-        int other = 0; 
+        int other = 0;
         for (int row = 0; row < 8; row++)
         {
             for(int i = 0; i < 8; i++)
@@ -257,7 +290,7 @@ public class Board : MonoBehaviour {
             }
             if (playerColorTile > 0 && squares[row + i, other + i].CurrentState != turnState && squares[row + i, other + i].CurrentState != Tile.State.FREE)
             {
-                //check if the tile before the oppenent one is not a free tile: 
+                //check if the tile before the oppenent one is not a free tile:
                 if (squares[row, other].CurrentState != Tile.State.FREE)
                 {
                     tileToFlip.Add(squares[row, other]);
@@ -275,7 +308,7 @@ public class Board : MonoBehaviour {
 
         if (valid == false)
         {
-            //purge the list of tiles to be flipped: 
+            //purge the list of tiles to be flipped:
             tileToFlip.Clear();
         }
 
@@ -348,7 +381,7 @@ public class Board : MonoBehaviour {
 
                 }
 
-                //first row and column: 
+                //first row and column:
                 else if (i > 0 && i < 7 && j == 7)
                 {
                     neighbours.Add(squares[j - 1, i - 1]);
@@ -358,7 +391,7 @@ public class Board : MonoBehaviour {
                     neighbours.Add(squares[j, i - 1]);
                     neighbours.Add(squares[j, i + 1]);
                 }
-                //first row and column: 
+                //first row and column:
                 else if (i > 0 && i < 7 && j == 0)
                 {
 
@@ -369,7 +402,7 @@ public class Board : MonoBehaviour {
                     neighbours.Add(squares[j + 1, i]);
                     neighbours.Add(squares[j + 1, i + 1]);
                 }
-                //first row and column: 
+                //first row and column:
                 else if (j > 0 && j < 7 && i == 0)
                 {
                     neighbours.Add(squares[j - 1, i]);
@@ -380,7 +413,7 @@ public class Board : MonoBehaviour {
                     neighbours.Add(squares[j + 1, i]);
                     neighbours.Add(squares[j + 1, i + 1]);
                 }
-                //first and last row and column: 
+                //first and last row and column:
                 else if (j > 0 && j < 7 && i == 7)
                 {
                     neighbours.Add(squares[j - 1, i - 1]);
