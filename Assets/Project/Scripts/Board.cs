@@ -9,6 +9,11 @@ public class Board : MonoBehaviour {
 
     public static Board board;
 
+    public const int COLLUMN = 8;
+
+    public const int ROW = 8; 
+
+
     public Tile[,] squares = new Tile[8,8];
 
     Dictionary<Tile, List<Tile>> tilesPlusNeighbours;
@@ -86,11 +91,14 @@ public class Board : MonoBehaviour {
         List<Tile> tileNeighbours = new List<Tile>();
             tileNeighbours = tilesPlusNeighbours[tile];
         //Check for neighbours:
-        foreach(Tile neighbour in tileNeighbours)
-        {   //Check if we can flip and check neighbours of the clicked tile:
-            if (check(turn) && neighbour.CurrentState != Tile.State.FREE && neighbour.CurrentState != clickedColour){return true;}
-        }
+        if (check(tile,turn))
+        {
+            foreach (Tile neighbour in tileNeighbours)
+            {   //Check if we can flip and check neighbours of the clicked tile:
+                if (neighbour.CurrentState != Tile.State.FREE && neighbour.CurrentState != clickedColour) { return true; }
+            }
 
+        }
         return false;
     }
 
@@ -120,22 +128,18 @@ public class Board : MonoBehaviour {
         }
     }
 
-    private bool check(Tile.State turn)
+    private bool check(Tile tile, Tile.State turn)
     {
-        for (int row = 0; row < 8; row++)
+        if (checkRow(tile.x, turn))
         {
-            if (checkRow(row, turn))
-            {
-                return true;
-            }
+            return true;
         }
-        for (int col = 0; col < 8; col++)
+
+        if (checkColumn(tile.y, turn))
         {
-            if (checkColumn(col, turn))
-            {
-                return true;
-            }
+            return true;
         }
+
         return false;
     }
 
@@ -185,15 +189,16 @@ public class Board : MonoBehaviour {
     //     return valid;
     // }
 	
-	private bool checkRow(int col, Tile.State turnState) {
-		foundOther = false;
+	private bool checkRow(int row, Tile.State turnState) {
 
-		for (int i = 0; i < col; i++) {
-		    if (squares[row, i].CurrentState == tile.CurrentState) {
-		        for (int j = i; j < col; j++) {
+        bool foundOther = false;
+
+		for (int i = 0; i < COLLUMN; i++) {
+		    if (squares[row, i].CurrentState == turnState) {
+		        for (int j = i; j < COLLUMN; j++) {
 		            if (squares[row, j].CurrentState != turn) {
 		                if (squares[row, j].CurrentState != Tile.State.FREE) {
-		                tileToFlip.Add(squares[row, col]);
+		                tileToFlip.Add(squares[row, j]);
 		                }
 		                else {
 		                    tileToFlip.Clear();
