@@ -52,11 +52,10 @@ public class Board : MonoBehaviour {
 
     public void OnClickTile ( Tile tile )
     {
-		Debug.Log("It's " + turn + "'s turn");
+		Debug.Log("Number of flips for this move: " + numberOfFlips(tile, turn));
+		Debug.Log("Is this a valid move? " + isValidMove(tile, turn));
         if (Input.GetKey(KeyCode.Mouse0))
         {
-            Debug.Log(tile.x + " " + tile.y);
-
             if (tile.CurrentState == Tile.State.FREE)
             {
                 // tile.CurrentState = turn;
@@ -75,8 +74,6 @@ public class Board : MonoBehaviour {
                 // }
             }
         }
-
-        // Debug.Log("click " + tile.x + ", " + tile.y);
     }
 
     // Update is called once per frame
@@ -94,8 +91,6 @@ public class Board : MonoBehaviour {
         {
             foreach (Tile tile in tileToFlip)
             {
-               // Debug.Log(squares[tile.y, tile.x].y + " " +  squares[tile.y, tile.x].x);
-
                 if (squares[tile.x, tile.y].CurrentState == Tile.State.WHITE)
                 {
                     squares[tile.x, tile.y].CurrentState = Tile.State.BLACK;
@@ -142,7 +137,6 @@ public class Board : MonoBehaviour {
 				}
 				if (validMove == true) {
 					while (y < yStart) {
-						Debug.Log(x + " " + y + " to be flipped");
 						tileToFlip.Add(squares[x, y]);
 						y++;
 					}
@@ -176,7 +170,6 @@ public class Board : MonoBehaviour {
 				}
 				if (validMove == true) {
 					while (y > yStart) {
-						Debug.Log(x + " " + y + " to be flipped");
 						tileToFlip.Add(squares[x, y]);
 						y--;
 					}
@@ -243,7 +236,6 @@ public class Board : MonoBehaviour {
 				}
 				if (validMove == true) {
 					while (x > xStart) {
-						Debug.Log(x + " " + y + " to be flipped");
 						tileToFlip.Add(squares[x, y]);
 						x--;
 					}
@@ -262,7 +254,6 @@ public class Board : MonoBehaviour {
 		int x = xStart + 1;
 		int y = yStart - 1;
 		if (isOnBoard(x, y)) {
-			Debug.Log("Inside diago up right");
 			Tile tileUp = squares[x, y];
 			if (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE) {
 				// There is a piece of opposite color above ours
@@ -280,7 +271,6 @@ public class Board : MonoBehaviour {
 				}
 				if (validMove == true) {
 					while (x > xStart && y < yStart) {
-						Debug.Log(x + " " + y + " to be flipped");
 						tileToFlip.Add(squares[x, y]);
 						x--;
 						y++;
@@ -317,7 +307,6 @@ public class Board : MonoBehaviour {
 				}
 				if (validMove == true) {
 					while (x > xStart && y > yStart) {
-						Debug.Log(x + " " + y + " to be flipped");
 						tileToFlip.Add(squares[x, y]);
 						x--;
 						y--;
@@ -354,7 +343,6 @@ public class Board : MonoBehaviour {
 				}
 				if (validMove == true) {
 					while (x < xStart && y > yStart) {
-						Debug.Log(x + " " + y + " to be flipped");
 						tileToFlip.Add(squares[x, y]);
 						x++;
 						y--;
@@ -391,7 +379,6 @@ public class Board : MonoBehaviour {
 				}
 				if (validMove == true) {
 					while (x < xStart && y < yStart) {
-						Debug.Log(x + " " + y + " to be flipped");
 						tileToFlip.Add(squares[x, y]);
 						x++;
 						y++;
@@ -410,15 +397,20 @@ public class Board : MonoBehaviour {
 		check(tile, turnState);
 		int numberOfFlips = tileToFlip.Count;
 		tileToFlip.Clear();
+		return numberOfFlips;
 	}
 	private bool isValidMove(Tile tile, Tile.State turnState) {
 		// If number of flips > 0, return true
 		return numberOfFlips(tile, turnState) > 0 ? true:false;
 	}
-	void skipTurn(Tile tile, Tile.state turnState) {
-		if (numberOfFlips(tile, turnState) == 0) {
-			switchTurn();
+	private bool skipTurn(Tile tile, Tile.State turnState) {
+		foreach (Tile tile in squares) {
+			if (numberOfFlips(tile, turnState) > 0) {
+				return false;
+			}
 		}
+		switchTurn();
+		return true;
 	}
 
     void switchTurn()
