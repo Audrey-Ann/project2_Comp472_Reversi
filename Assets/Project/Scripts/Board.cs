@@ -406,6 +406,20 @@ public class Board : MonoBehaviour {
     {
         return tilesToBeFlippedUp(tile.x, tile.y, turn) | tilesToBeFlippedDown(tile.x, tile.y, turn) | tilesToBeFlippedLeft(tile.x, tile.y, turn) | tilesToBeFlippedRight(tile.x, tile.y, turn) | tilesToBeFlippedDiagonalUpRight(tile.x, tile.y, turn) | tilesToBeFlippedDiagonalDownRight(tile.x, tile.y, turn) | tilesToBeFlippedDiagonalDownLeft(tile.x, tile.y, turn) | tilesToBeFlippedDiagonalUpLeft(tile.x, tile.y, turn);
     }
+	private int numberOfFlips(Tile tile, Tile.State turnState) {
+		check(tile, turnState);
+		int numberOfFlips = tileToFlip.Count;
+		tileToFlip.Clear();
+	}
+	private bool isValidMove(Tile tile, Tile.State turnState) {
+		// If number of flips > 0, return true
+		return numberOfFlips(tile, turnState) > 0 ? true:false;
+	}
+	void skipTurn(Tile tile, Tile.state turnState) {
+		if (numberOfFlips(tile, turnState) == 0) {
+			switchTurn();
+		}
+	}
 
     void switchTurn()
     {
