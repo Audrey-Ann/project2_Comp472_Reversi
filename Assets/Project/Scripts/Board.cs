@@ -404,11 +404,12 @@ public class Board : MonoBehaviour {
 		return numberOfFlips(tile, turnState) > 0 ? true:false;
 	}
 	private bool skipTurn(Tile tile, Tile.State turnState) {
-		foreach (Tile tile in squares) {
-			if (numberOfFlips(tile, turnState) > 0) {
+		foreach (Tile individualTile in squares) {
+			if (numberOfFlips(individualTile, turnState) > 0) {
 				return false;
 			}
 		}
+		Debug.Log("You have no valid moves for this round. The turn goes to the other player.");
 		switchTurn();
 		return true;
 	}
