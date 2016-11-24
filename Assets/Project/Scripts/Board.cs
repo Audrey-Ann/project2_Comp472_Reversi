@@ -9,9 +9,9 @@ public class Board : MonoBehaviour {
 
     public static Board board;
 
-    public const int COLLUMN = 8;
+    public const int NUMBER_OF_COLUMNS = 8;
 
-    public const int ROW = 8; 
+    public const int NUMBER_OF_ROWS = 8;
 
 
     public Tile[,] squares = new Tile[8,8];
@@ -52,27 +52,29 @@ public class Board : MonoBehaviour {
 
     public void OnClickTile ( Tile tile )
     {
+		Debug.Log("It's " + turn + "'s turn");
         if (Input.GetKey(KeyCode.Mouse0))
         {
             Debug.Log(tile.x + " " + tile.y);
 
             if (tile.CurrentState == Tile.State.FREE)
             {
+                // tile.CurrentState = turn;
+				// Debug.Log(tile.CurrentState);
 
-                tile.CurrentState = turn;
-
-                if (checkValidMove(tile, turn))
+                if (check(tile, turn))
                 {
+					FlipBoard();
                     listBoardStates.Add(board);
+					tile.CurrentState = turn;
                     switchTurn();
                 }
-                else
-                {
-                    tile.CurrentState = Tile.State.FREE;
-                }
+                // else
+                // {
+                //     tile.CurrentState = Tile.State.FREE;
+                // }
             }
         }
-        FlipBoard();
 
         // Debug.Log("click " + tile.x + ", " + tile.y);
     }
@@ -86,21 +88,21 @@ public class Board : MonoBehaviour {
         }
 	}
 
-    bool checkValidMove(Tile tile, Tile.State clickedColour)
-    {
-        List<Tile> tileNeighbours = new List<Tile>();
-            tileNeighbours = tilesPlusNeighbours[tile];
-        //Check for neighbours:
-        if (check(tile,turn))
-        {
-            foreach (Tile neighbour in tileNeighbours)
-            {   //Check if we can flip and check neighbours of the clicked tile:
-                if (neighbour.CurrentState != Tile.State.FREE && neighbour.CurrentState != clickedColour) { return true; }
-            }
-
-        }
-        return false;
-    }
+    // bool checkValidMove(Tile tile, Tile.State clickedColour)
+    // {
+    //     List<Tile> tileNeighbours = new List<Tile>();
+    //         tileNeighbours = tilesPlusNeighbours[tile];
+    //     //Check for neighbours:
+    //     if (check(tile,turn))
+    //     {
+    //         foreach (Tile neighbour in tileNeighbours)
+    //         {   //Check if we can flip and check neighbours of the clicked tile:
+    //             if (neighbour.CurrentState != Tile.State.FREE && neighbour.CurrentState != clickedColour) { return true; }
+    //         }
+	//
+    //     }
+    //     return false;
+    // }
 
     void FlipBoard()
     {
@@ -127,198 +129,299 @@ public class Board : MonoBehaviour {
             Debug.Log("Nothing to be flipped");
         }
     }
+	private bool isOnBoard(int x, int y) {
+		// Returns true if the coordinates are on the board
+		return x >= 0 && x <= 7 && y >= 0 && y <= 7;
+	}
+	bool tilesToBeFlippedUp(int xStart, int yStart, Tile.State turnState) {
+		bool validMove = false;
+		// Returns a list of Tiles to be flipped; empty list if move is not valid.
+		if (!isOnBoard(xStart, yStart)) {
+			return validMove;
+		}
+		// Check if any tiles to flip going up
+		int x = xStart;
+		int y = yStart - 1;
+		if (isOnBoard(x, y)) {
+			Tile tileUp = squares[x, y];
+			if (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE) {
+				// There is a piece of opposite color above ours
+				while (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE && validMove == false) {
+					y--;
+					if (isOnBoard(x, y)) {
+						tileUp = squares[x, y];
+						if (tileUp.CurrentState == turnState) {
+							validMove = true;
+							y++;
+						}
+					}
+				}
+				if (validMove == true) {
+					while (y < yStart) {
+						Debug.Log(x + " " + y + " to be flipped");
+						tileToFlip.Add(squares[x, y]);
+						y++;
+					}
+				}
+			}
+		}
+		return validMove;
+	}
+	bool tilesToBeFlippedDown(int xStart, int yStart, Tile.State turnState) {
+		bool validMove = false;
+		// Returns a list of Tiles to be flipped; empty list if move is not valid.
+		if (!isOnBoard(xStart, yStart)) {
+			return validMove;
+		}
+		// Check if any tiles to flip going right
+		int x = xStart;
+		int y = yStart + 1;
+		if (isOnBoard(x, y)) {
+			Tile tileUp = squares[x, y];
+			if (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE) {
+				// There is a piece of opposite color above ours
+				while (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE && validMove == false) {
+					y++;
+					if (isOnBoard(x, y)) {
+						tileUp = squares[x, y];
+						if (tileUp.CurrentState == turnState) {
+							validMove = true;
+							y--;
+						}
+					}
+				}
+				if (validMove == true) {
+					while (y > yStart) {
+						Debug.Log(x + " " + y + " to be flipped");
+						tileToFlip.Add(squares[x, y]);
+						y--;
+					}
+				}
+			}
+		}
+		return validMove;
+	}
+	bool tilesToBeFlippedLeft(int xStart, int yStart, Tile.State turnState) {
+		bool validMove = false;
+		// Returns a list of Tiles to be flipped; empty list if move is not valid.
+		if (!isOnBoard(xStart, yStart)) {
+			return validMove;
+		}
+		// Check if any tiles to flip going right
+		int x = xStart - 1;
+		int y = yStart;
+		if (isOnBoard(x, y)) {
+			Tile tileUp = squares[x, y];
+			if (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE) {
+				// There is a piece of opposite color above ours
+				while (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE && validMove == false) {
+					x--;
+					if (isOnBoard(x, y)) {
+						tileUp = squares[x, y];
+						if (tileUp.CurrentState == turnState) {
+							validMove = true;
+							x++;
+						}
+					}
+				}
+				if (validMove == true) {
+					while (x < xStart) {
+						tileToFlip.Add(squares[x, y]);
+						x++;
+					}
+				}
+			}
+		}
+		return validMove;
+	}
+	bool tilesToBeFlippedRight(int xStart, int yStart, Tile.State turnState) {
+		bool validMove = false;
+		// Returns a list of Tiles to be flipped; empty list if move is not valid.
+		if (!isOnBoard(xStart, yStart)) {
+			return validMove;
+		}
+		// Check if any tiles to flip going right
+		int x = xStart + 1;
+		int y = yStart;
+		if (isOnBoard(x, y)) {
+			Tile tileUp = squares[x, y];
+			if (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE) {
+				// There is a piece of opposite color above ours
+				while (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE && validMove == false) {
+					x++;
+					if (isOnBoard(x, y)) {
+						tileUp = squares[x, y];
+						if (tileUp.CurrentState == turnState) {
+							validMove = true;
+							x--;
+						}
+					}
+				}
+				if (validMove == true) {
+					while (x > xStart) {
+						Debug.Log(x + " " + y + " to be flipped");
+						tileToFlip.Add(squares[x, y]);
+						x--;
+					}
+				}
+			}
+		}
+		return validMove;
+	}
+	bool tilesToBeFlippedDiagonalUpRight(int xStart, int yStart, Tile.State turnState) {
+		bool validMove = false;
+		// Returns a list of Tiles to be flipped; empty list if move is not valid.
+		if (!isOnBoard(xStart, yStart)) {
+			return validMove;
+		}
+		// Check if any tiles to flip going right
+		int x = xStart + 1;
+		int y = yStart - 1;
+		if (isOnBoard(x, y)) {
+			Debug.Log("Inside diago up right");
+			Tile tileUp = squares[x, y];
+			if (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE) {
+				// There is a piece of opposite color above ours
+				while (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE && validMove == false) {
+					x++;
+					y--;
+					if (isOnBoard(x, y)) {
+						tileUp = squares[x, y];
+						if (tileUp.CurrentState == turnState) {
+							validMove = true;
+							x--;
+							y++;
+						}
+					}
+				}
+				if (validMove == true) {
+					while (x > xStart && y < yStart) {
+						Debug.Log(x + " " + y + " to be flipped");
+						tileToFlip.Add(squares[x, y]);
+						x--;
+						y++;
+					}
+				}
+			}
+		}
+		return validMove;
+	}
+	bool tilesToBeFlippedDiagonalDownRight(int xStart, int yStart, Tile.State turnState) {
+		bool validMove = false;
+		// Returns a list of Tiles to be flipped; empty list if move is not valid.
+		if (!isOnBoard(xStart, yStart)) {
+			return validMove;
+		}
+		// Check if any tiles to flip going right
+		int x = xStart + 1;
+		int y = yStart + 1;
+		if (isOnBoard(x, y)) {
+			Tile tileUp = squares[x, y];
+			if (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE) {
+				// There is a piece of opposite color above ours
+				while (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE && validMove == false) {
+					x++;
+					y++;
+					if (isOnBoard(x, y)) {
+						tileUp = squares[x, y];
+						if (tileUp.CurrentState == turnState) {
+							validMove = true;
+							x--;
+							y--;
+						}
+					}
+				}
+				if (validMove == true) {
+					while (x > xStart && y > yStart) {
+						Debug.Log(x + " " + y + " to be flipped");
+						tileToFlip.Add(squares[x, y]);
+						x--;
+						y--;
+					}
+				}
+			}
+		}
+		return validMove;
+	}
+	bool tilesToBeFlippedDiagonalDownLeft(int xStart, int yStart, Tile.State turnState) {
+		bool validMove = false;
+		// Returns a list of Tiles to be flipped; empty list if move is not valid.
+		if (!isOnBoard(xStart, yStart)) {
+			return validMove;
+		}
+		// Check if any tiles to flip going right
+		int x = xStart - 1;
+		int y = yStart + 1;
+		if (isOnBoard(x, y)) {
+			Tile tileUp = squares[x, y];
+			if (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE) {
+				// There is a piece of opposite color above ours
+				while (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE && validMove == false) {
+					x--;
+					y++;
+					if (isOnBoard(x, y)) {
+						tileUp = squares[x, y];
+						if (tileUp.CurrentState == turnState) {
+							validMove = true;
+							x++;
+							y--;
+						}
+					}
+				}
+				if (validMove == true) {
+					while (x < xStart && y > yStart) {
+						Debug.Log(x + " " + y + " to be flipped");
+						tileToFlip.Add(squares[x, y]);
+						x++;
+						y--;
+					}
+				}
+			}
+		}
+		return validMove;
+	}
+	bool tilesToBeFlippedDiagonalUpLeft(int xStart, int yStart, Tile.State turnState) {
+		bool validMove = false;
+		// Returns a list of Tiles to be flipped; empty list if move is not valid.
+		if (!isOnBoard(xStart, yStart)) {
+			return validMove;
+		}
+		// Check if any tiles to flip going right
+		int x = xStart - 1;
+		int y = yStart - 1;
+		if (isOnBoard(x, y)) {
+			Tile tileUp = squares[x, y];
+			if (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE) {
+				// There is a piece of opposite color above ours
+				while (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE && validMove == false) {
+					x--;
+					y--;
+					if (isOnBoard(x, y)) {
+						tileUp = squares[x, y];
+						if (tileUp.CurrentState == turnState) {
+							validMove = true;
+							x++;
+							y++;
+						}
+					}
+				}
+				if (validMove == true) {
+					while (x < xStart && y < yStart) {
+						Debug.Log(x + " " + y + " to be flipped");
+						tileToFlip.Add(squares[x, y]);
+						x++;
+						y++;
+					}
+				}
+			}
+		}
+		return validMove;
+	}
 
     private bool check(Tile tile, Tile.State turn)
     {
-        if (checkRow(tile.x, turn))
-        {
-            return true;
-        }
-
-        if (checkColumn(tile.y, turn))
-        {
-            return true;
-        }
-
-        return false;
+        return tilesToBeFlippedUp(tile.x, tile.y, turn) | tilesToBeFlippedDown(tile.x, tile.y, turn) | tilesToBeFlippedLeft(tile.x, tile.y, turn) | tilesToBeFlippedRight(tile.x, tile.y, turn) | tilesToBeFlippedDiagonalUpRight(tile.x, tile.y, turn) | tilesToBeFlippedDiagonalDownRight(tile.x, tile.y, turn) | tilesToBeFlippedDiagonalDownLeft(tile.x, tile.y, turn) | tilesToBeFlippedDiagonalUpLeft(tile.x, tile.y, turn);
     }
-
-    // private bool checkRow(int row, Tile.State turnState)
-    // {
-    //     bool valid = false;
-    //     int col = 0;
-    //     int playerColorTile = 0;
-    //     int opponentColorTile = 0;
-    //     bool nextToEachOther = false;
-	//
-    //     while (col < 8)
-    //     {
-    //         if (squares[row, col].CurrentState == turnState)
-    //         {
-    //             playerColorTile++;
-    //             //Make sure that the player's tiles are not next to each other:
-    //             if (playerColorTile > 1 && squares[row, col].CurrentState == squares[row, col - 1].CurrentState)
-    //             {
-    //                 nextToEachOther = true;
-    //             }
-    //         }
-    //         if (playerColorTile > 0 && squares[row, col].CurrentState != turnState && squares[row, col].CurrentState != Tile.State.FREE)
-    //         {
-    //             //check if the tile before the oppenent one is not a free tile:
-    //             if (squares[row, col - 1].CurrentState != Tile.State.FREE)
-    //             {
-    //                 tileToFlip.Add(squares[row, col]);
-    //                 opponentColorTile++;
-    //             }
-    //         }
-    //         col++;
-    //     }
-	//
-    //     //check constraints
-    //     if (playerColorTile >= 2 && opponentColorTile > 0 && nextToEachOther == false)
-    //     {
-    //         valid = true;
-    //     }
-	//
-    //     if(valid == false)
-    //     {
-    //         //purge the list of tiles to be flipped:
-    //         tileToFlip.Clear();
-    //     }
-	//
-    //     return valid;
-    // }
-	
-	private bool checkRow(int row, Tile.State turnState) {
-
-        bool foundOther = false;
-
-		for (int i = 0; i < COLLUMN; i++) {
-		    if (squares[row, i].CurrentState == turnState) {
-		        for (int j = i; j < COLLUMN; j++) {
-		            if (squares[row, j].CurrentState != turn) {
-		                if (squares[row, j].CurrentState != Tile.State.FREE) {
-		                tileToFlip.Add(squares[row, j]);
-		                }
-		                else {
-		                    tileToFlip.Clear();
-		                    return false;
-		                }
-		            }
-		            else {
-		                if (j != i) {
-		                    foundOther = true;
-		                    break;
-		                }
-		            }
-		            break;
-		        }
-		    }
-		}
-		if (foundOther == true) {
-		    return true;
-		}
-		else {
-		    return false;
-		}
-	}
-
-    private bool checkColumn(int col, Tile.State turnState)
-    {
-        bool valid = false;
-        int row = 0;
-        int playerColorTile = 0;
-        int opponentColorTile = 0;
-        bool nextToEachOther = false;
-
-        // count consecutive black tiles
-        while (row < 8)
-        {
-            if (squares[row, col].CurrentState == turnState)
-            {
-                playerColorTile++;
-
-                if (playerColorTile > 1 && squares[row, col].CurrentState == squares[row - 1, col].CurrentState)
-                {
-                 //   nextToEachOther = true;
-                }
-            }
-            if (playerColorTile > 0 && squares[row, col].CurrentState != turnState && squares[row, col].CurrentState != Tile.State.FREE)
-            {
-                //check if the tile before the oppenent one is not a free tile:
-                if (squares[row - 1, col].CurrentState != Tile.State.FREE)
-                {
-                    tileToFlip.Add(squares[row, col]);
-                    opponentColorTile++;
-                }
-            }
-            row++;
-        }
-
-        // check constraint
-        if (playerColorTile >= 2 && opponentColorTile > 0 && nextToEachOther == false)
-        {
-            valid = true;
-        }
-
-        if (valid == false)
-        {
-            //purge the list of tiles to be flipped:
-            tileToFlip.Clear();
-        }
-
-        return valid;
-    }
-
-    /*
-    private bool checkDiagonals(Tile.State turnState)
-    {
-        bool valid = false;
-        int playerColorTile = 0;
-        int opponentColorTile = 0;
-        bool nextToEachOther = false;
-
-        int other = 0;
-        for (int row = 0; row < 8; row++)
-        {
-            for(int i = 0; i < 8; i++)
-            {
-
-            if (squares[row + i, other + i].CurrentState == turnState)
-            {
-                playerColorTile++;
-
-                if (playerColorTile > 1 && squares[row + i, other + i].CurrentState == squares[row, other].CurrentState)
-                {
-                    //   nextToEachOther = true;
-                }
-            }
-            if (playerColorTile > 0 && squares[row + i, other + i].CurrentState != turnState && squares[row + i, other + i].CurrentState != Tile.State.FREE)
-            {
-                //check if the tile before the oppenent one is not a free tile:
-                if (squares[row, other].CurrentState != Tile.State.FREE)
-                {
-                    tileToFlip.Add(squares[row, other]);
-                    opponentColorTile++;
-                }
-            }
-            row++;
-        }
-    }
-        // check constraint
-        if (playerColorTile >= 2 && opponentColorTile > 0 && nextToEachOther == false)
-        {
-            valid = true;
-        }
-
-        if (valid == false)
-        {
-            //purge the list of tiles to be flipped:
-            tileToFlip.Clear();
-        }
-
-        return valid;
-    }*/
 
     void switchTurn()
     {
