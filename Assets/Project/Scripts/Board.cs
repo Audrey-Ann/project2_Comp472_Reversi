@@ -88,22 +88,6 @@ public class Board : MonoBehaviour {
         }
 	}
 
-    // bool checkValidMove(Tile tile, Tile.State clickedColour)
-    // {
-    //     List<Tile> tileNeighbours = new List<Tile>();
-    //         tileNeighbours = tilesPlusNeighbours[tile];
-    //     //Check for neighbours:
-    //     if (check(tile,turn))
-    //     {
-    //         foreach (Tile neighbour in tileNeighbours)
-    //         {   //Check if we can flip and check neighbours of the clicked tile:
-    //             if (neighbour.CurrentState != Tile.State.FREE && neighbour.CurrentState != clickedColour) { return true; }
-    //         }
-	//
-    //     }
-    //     return false;
-    // }
-
     void FlipBoard()
     {
         if (tileToFlip.Count > 0)
