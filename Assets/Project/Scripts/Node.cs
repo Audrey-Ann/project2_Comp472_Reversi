@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class Node {
     private Node parent;
     private Board board;
-    private cost = 0;
+    private int cost = 0;
 
     public Node() {
         this.parent = null;
