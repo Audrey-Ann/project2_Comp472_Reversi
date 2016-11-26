@@ -13,16 +13,15 @@ public class Board : MonoBehaviour {
 
     public const int NUMBER_OF_ROWS = 8;
 
-
     public Tile[,] squares = new Tile[8,8];
 
     Dictionary<Tile, List<Tile>> tilesPlusNeighbours;
 
-    public static List<Board> listBoardStates = new List<Board>();
+    public static List<Node> listBoardStates = new List<Node>();
 
     List<Tile> tileToFlip;
 
-    Tile.State turn;
+    public Tile.State turn;
 
     void Start () {
 
@@ -64,7 +63,9 @@ public class Board : MonoBehaviour {
                 if (check(tile, turn))
                 {
 					FlipBoard();
-                    listBoardStates.Add(board);
+					Node newBoard = new Node();
+					newBoard.setBoard(board);
+                    listBoardStates.Add(newBoard);
 					tile.CurrentState = turn;
                     switchTurn();
                 }
@@ -126,6 +127,7 @@ public class Board : MonoBehaviour {
 			if (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE) {
 				// There is a piece of opposite color above ours
 				while (tileUp.CurrentState != turnState && tileUp.CurrentState != Tile.State.FREE && validMove == false) {
+					Debug.Log("Loop1");
 					y--;
 					if (isOnBoard(x, y)) {
 						tileUp = squares[x, y];
@@ -137,6 +139,7 @@ public class Board : MonoBehaviour {
 				}
 				if (validMove == true) {
 					while (y < yStart) {
+						Debug.Log("Loop2");
 						tileToFlip.Add(squares[x, y]);
 						y++;
 					}
@@ -389,11 +392,17 @@ public class Board : MonoBehaviour {
 		return validMove;
 	}
 
-    private bool check(Tile tile, Tile.State turn)
+    public bool check(Tile tile, Tile.State turn)
     {
         return tilesToBeFlippedUp(tile.x, tile.y, turn) | tilesToBeFlippedDown(tile.x, tile.y, turn) | tilesToBeFlippedLeft(tile.x, tile.y, turn) | tilesToBeFlippedRight(tile.x, tile.y, turn) | tilesToBeFlippedDiagonalUpRight(tile.x, tile.y, turn) | tilesToBeFlippedDiagonalDownRight(tile.x, tile.y, turn) | tilesToBeFlippedDiagonalDownLeft(tile.x, tile.y, turn) | tilesToBeFlippedDiagonalUpLeft(tile.x, tile.y, turn);
     }
-	private int numberOfFlips(Tile tile, Tile.State turnState) {
+	public Board checkAndFlip(Tile tile, Tile.State turn) {
+		if (check(tile, turn)) {
+			Board newBoard = this;
+			newBoard.
+		}
+	}
+	public int numberOfFlips(Tile tile, Tile.State turnState) {
 		check(tile, turnState);
 		int numberOfFlips = tileToFlip.Count;
 		tileToFlip.Clear();
@@ -403,15 +412,18 @@ public class Board : MonoBehaviour {
 		// If number of flips > 0, return true
 		return numberOfFlips(tile, turnState) > 0 ? true:false;
 	}
-	private bool skipTurn(Tile tile, Tile.State turnState) {
+	public bool movePossible(Tile.State turnState) {
 		foreach (Tile individualTile in squares) {
 			if (numberOfFlips(individualTile, turnState) > 0) {
-				return false;
+				return true;
 			}
 		}
-		Debug.Log("You have no valid moves for this round. The turn goes to the other player.");
-		switchTurn();
-		return true;
+		return false;
+	}
+	private void skipTurn(Tile.State turnState) {
+		if (!movePossible(this, turnState)) {
+			switchTurn();
+		}
 	}
 
     void switchTurn()
@@ -426,7 +438,7 @@ public class Board : MonoBehaviour {
         }
     }
 
-    void Reset()
+    private void Reset()
     {
         for (int i = 0; i < 8; i++)
         {
@@ -442,7 +454,7 @@ public class Board : MonoBehaviour {
         squares[4, 3].CurrentState = Tile.State.BLACK;
     }
 
-    void collectNeighbours(Tile[,] list)
+    private void collectNeighbours(Tile[,] list)
     {
         for (int i = 0; i < 8; i++)
         {
